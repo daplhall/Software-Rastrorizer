@@ -53,6 +53,8 @@ void line_old(int x0, int y0, int x1, int y1, TGAimage &image, TGAcolor &color) 
        This might increase performance, or it might also be a micro optimization
        Also try for fun to check the error between our new line draw and the old, to see
        how they differ, and also who is the better one.
+       test if it is faster to store dx before transpose and then multiply by 1
+       or do the dx calulations in transposed if and then later re calulate them
 */
 void line(int x0, int y0, int x1, int y1, TGAimage &image, TGAcolor &color) { 
    std::cout << x0 << " " << y0 <<  " " << x1 << " " << y1 << std::endl;
