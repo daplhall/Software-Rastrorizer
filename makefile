@@ -12,13 +12,13 @@ LINKER   := g++
 # -fopt-info-optimized=Auto_Vec
 CPPFLAGS := -I$(INC_DIR) -Wall -fopt-info-optimized=Auto_Vec 
 LFALGS   := -I$(INC_DIR)
-DBFLAG   := -O0 -g -fkeep-inline-functions 
+DBFLAG   := -O0 -g -pg
 
 SOURCES  := $(wildcard $(SRC_DIR)/*.cpp)
 INCLUDES := $(wildcard $(INC_DIR)/*.h)
 OBJECTS  := $(SOURCES:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 DOBJECTS := $(SOURCES:$(SRC_DIR)/%.cpp=$(DOBJ_DIR)/%.o)
-
+#-fkeep-inline-functions 
 .PHONEY: clean all run debug gdb ani test plot
 
 all: CPPFLAGS += -O3 -DNDEBUG # -DNDEBUG disables asserts, like says #deifne NDEBUG
@@ -40,5 +40,8 @@ $(BIN_DIR)/$(EXE): $(OBJECTS)
 $(OBJECTS): $(OBJ_DIR)/%.o : $(SRC_DIR)/%.cpp
 	$(CC) $(CPPFLAGS) -c $< -o $@
 #####
+
+run:
+	
 clean:
 	rm $(OBJECTS) $(DOBJECTS) $(BIN_DIR)/$(EXE) $(DBIN_DIR)/$(EXE)

@@ -33,7 +33,7 @@ int WindowsConsole::TGAToBuffer(TGAimage const &image, short const chr){
     
     for (int pixel = 0; pixel < TGAwidth*TGAHeight; pixel++){
         m_Screen[pixel].Char.UnicodeChar = chr;
-        m_Screen[pixel].Attributes       = TGABuffer[pixel];
+        m_Screen[pixel].Attributes       = static_cast<short>(TGABuffer[pixel]);
     }
     print();
     return 0;

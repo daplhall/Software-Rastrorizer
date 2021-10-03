@@ -15,8 +15,6 @@ TGAimage::TGAimage(int const width, int const height, int const bpp) : m_screenb
     return : bool
     -- return 1 if an error has occured and 0 if it finished
 */
-
-
 /*
     Assumes the programmer knows or controls weather we are within the bounds
 */
@@ -30,7 +28,7 @@ bool TGAimage::TGAwrite(std::string filename, bool fliped){
     TGAHeader header; 
     header.width         = m_width;
     header.height        = m_height;
-    header.BitsPrPixel   = m_bpp << 3; // translates the bytes to pits. eg. RGB is 3 bytes, and we then translate it to 24 bytes.
+    header.BitsPrPixel   = m_bpp << 3; // translates the bytes to pits. eg. RGB is 3 bytes, and we then translate it to 24 bytes. eqivilant to mutlipying with 8.
     header.DataTypeCode  = (m_bpp == Greyscale) ? 3 : 2; // TODO add compression ie more '?', values come from table in  http://www.paulbourke.net/dataformats/tga/
     header.ImgDescriptor = fliped ? 0x00 : 0x20; // 0x20 corresponds exactly to a 1 on the 5th bith and 0 elsewhere
     // leave the rest as 0
