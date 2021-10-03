@@ -4,6 +4,7 @@
 #include <vector>
 #include "TGAImage.h"
 #include <myWindowsConsle.h>
+#include <chrono>
 
 class windowsconsole: public WindowsConsole{
 
@@ -97,6 +98,43 @@ void line(int x0, int y0, int x1, int y1, TGAimage &image, TGAcolor &color) {
    }
 }
 
+void line1(int x0, int y0, int x1, int y1, TGAimage &image, TGAcolor &color) { 
+    bool steep = false; 
+    if (std::abs(x0-x1)<std::abs(y0-y1)) { 
+        std::swap(x0, y0); 
+        std::swap(x1, y1); 
+        steep = true; 
+    } 
+    if (x0>x1) { 
+        std::swap(x0, x1); 
+        std::swap(y0, y1); 
+    } 
+    int dx = x1-x0; 
+    int dy = y1-y0; 
+    int derror2 = std::abs(dy)*2; 
+    int error2 = 0; 
+    int y = y0; 
+    if(steep) {
+        for(int x = x0; x<=x1; ++x) {
+            image.draw(y, x, color);
+            error2 += derror2;
+            if(error2 > dx) {
+                y += (y1>y0? 1 : -1);
+                error2 -= dx*2;
+            }
+        }
+    } else {
+        for(int x = x0; x<=x1; ++x) {
+            image.draw(x, y, color);
+            error2 += derror2;
+            if(error2 > dx) {
+                y += (y1>y0? 1 : -1);
+                error2 -= dx*2;
+            }
+        }
+    }
+} 
+
 class vector3d
 {
    private://         0  1  2  3  4  5
@@ -118,16 +156,16 @@ int main(int argv, char *argc[]){
    int height = 200;
    vector3d vec;
 
-   TGAimage test(width, height, TGAimage::RGB);
+   TGAimage test(width, cheight, TGAimage::RGB);
    TGAcolor red(255,0,0);
    TGAcolor green(0,255,0);
    TGAcolor white(255,255,255);
-        
-   line(vec.at(0,0), vec.at(0,1), vec.at(1,0), vec.at(1,1), test, red);
+
+   line(vec.at(0,0), vec.at(0,1), vec.at(1,0), vec.at(1,1), test, green);
    line(vec.at(1,0), vec.at(1,1), vec.at(2,0), vec.at(2,1), test, green);
    line(vec.at(2,0), vec.at(2,1), vec.at(0,0), vec.at(0,1), test, white);
 
-   test.TGAwrite("./TGA/test.tga", 1);
+   //test.TGAwrite("./TGA/test.tga", 1);
 /*
    windowsconsole win;
    win.CreateScreenWithBuffer(width,height,1,1);
