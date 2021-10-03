@@ -71,8 +71,6 @@ void line(int x0, int y0, int x1, int y1, TGAimage &image, TGAcolor &color) {
       dx *= -1;
       dy *= -1;
    }
-   dx = x1 - x0; // will always be positive after swap
-   dy = y1 - y0;
    int dySum = 0;
    int dyabs = std::abs(dy);
    int y = y0;
