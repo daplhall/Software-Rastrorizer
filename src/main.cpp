@@ -57,7 +57,6 @@ void line_old(int x0, int y0, int x1, int y1, TGAimage &image, TGAcolor &color) 
        or do the dx calulations in transposed if and then later re calulate them
 */
 void line(int x0, int y0, int x1, int y1, TGAimage &image, TGAcolor &color) { 
-   std::cout << x0 << " " << y0 <<  " " << x1 << " " << y1 << std::endl;
    bool transpose = false;
    int dx = x1 - x0; // will always be positive after swap
    int dy = y1 - y0;
