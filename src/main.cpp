@@ -2,9 +2,10 @@
 #include <math.h>
 #include <algorithm>
 #include <vector>
-#include "TGAImage.h"
-#include <myWindowsConsle.h>
 #include <chrono>
+#include "TGAImage.h"
+#include "myWindowsConsle.h"
+#include "model_objects.h"
 
 class windowsconsole: public WindowsConsole{
 
@@ -98,42 +99,28 @@ void line(int x0, int y0, int x1, int y1, TGAimage &image, TGAcolor &color) {
    }
 }
 
-void line1(int x0, int y0, int x1, int y1, TGAimage &image, TGAcolor &color) { 
-    bool steep = false; 
-    if (std::abs(x0-x1)<std::abs(y0-y1)) { 
-        std::swap(x0, y0); 
-        std::swap(x1, y1); 
-        steep = true; 
-    } 
-    if (x0>x1) { 
-        std::swap(x0, x1); 
-        std::swap(y0, y1); 
-    } 
-    int dx = x1-x0; 
-    int dy = y1-y0; 
-    int derror2 = std::abs(dy)*2; 
-    int error2 = 0; 
-    int y = y0; 
-    if(steep) {
-        for(int x = x0; x<=x1; ++x) {
+void line1(int x0, int y0, int x1, int y1, TGAimage &image, TGAcolor color) {
+    bool steep = false;
+    if (std::abs(x0-x1)<std::abs(y0-y1)) {
+        std::swap(x0, y0);
+        std::swap(x1, y1);
+        steep = true;
+    }
+    if (x0>x1) {
+        std::swap(x0, x1);
+        std::swap(y0, y1);
+    }
+
+    for (int x=x0; x<=x1; x++) {
+        float t = (x-x0)/(float)(x1-x0);
+        int y = y0*(1.-t) + y1*t;
+        if (steep) {
             image.draw(y, x, color);
-            error2 += derror2;
-            if(error2 > dx) {
-                y += (y1>y0? 1 : -1);
-                error2 -= dx*2;
-            }
-        }
-    } else {
-        for(int x = x0; x<=x1; ++x) {
+        } else {
             image.draw(x, y, color);
-            error2 += derror2;
-            if(error2 > dx) {
-                y += (y1>y0? 1 : -1);
-                error2 -= dx*2;
-            }
         }
     }
-} 
+}
 
 class vector3d
 {
@@ -151,27 +138,56 @@ class vector3d
 
 
 int main(int argv, char *argc[]){
-   int a;
-   int width  = 200;
-   int height = 200;
+   const int width  = 800;
+   const int height = 800;
    vector3d vec;
 
-   TGAimage test(width, cheight, TGAimage::RGB);
+   TGAimage image(width, height, TGAimage::RGB);
    TGAcolor red(255,0,0);
    TGAcolor green(0,255,0);
    TGAcolor white(255,255,255);
-
-   line(vec.at(0,0), vec.at(0,1), vec.at(1,0), vec.at(1,1), test, green);
-   line(vec.at(1,0), vec.at(1,1), vec.at(2,0), vec.at(2,1), test, green);
-   line(vec.at(2,0), vec.at(2,1), vec.at(0,0), vec.at(0,1), test, white);
-
-   //test.TGAwrite("./TGA/test.tga", 1);
-/*
+   
+   model african("./models/african_head.obj");
+   /*
+   int face = african.nfaces() -1;
+   for (int j = 0; j < 3;j++){
+   std::cout << "faces(index from 1)::" << " 1: " << african.fv(face, j) +1<< " 2: " << african.fv(face, (j+1)%3) +1 << std::endl;
+   std::cout << "x: "<< std::endl;
+   std::cout << african.vx(african.fv(face, j)) << "\t";
+   std::cout << african.vx(african.fv(face, (j+1)%3)) << std::endl ;
+   std::cout << "y: "<< std::endl;
+   std::cout << african.vy(african.fv(face, j)) << "\t";
+   std::cout << african.vy(african.fv(face, (j+1)%3)) << std::endl ;
+   }
+   */
+   
+   for (int face = 0; face < 10; face++){
+      for (int j = 0; j < 3; j++){
+         float vx0 = african.vx(african.fv(face, j));
+         float vy0 = african.vy(african.fv(face, j));
+         float vx1 = african.vx(african.fv(face, (j+1)%3)); // this can be built into the fv func
+         float vy1 = african.vy(african.fv(face, (j+1)%3));
+         int x0 = (vx0+1.)*width /2.; //we add 1 because of the negative values and we are centered around 0 withing -1 and 1
+         int y0 = (vy0+1.)*height/2.; 
+         int x1 = (vx1+1.)*width /2.; 
+         int y1 = (vy1+1.)*height/2.; 
+         line(x0, y0, x1, y1, image, white); 
+         std::cout << "faces: \t" << african.fv(face, j) << " " << african.fv(face, (j+1)%3) << std::endl;
+         std::cout << "vertex: \t" << vx0 << " "  << vy0 << " " << vx1<< " " <<vy1 << std::endl;
+         std::cout << "pixel: \t" << x0 << " "  << y0 << " " << x1<< " " << y1 << std::endl;
+      }
+   }
+   
+   // line(vec.at(0,0), vec.at(0,1), vec.at(1,0), vec.at(1,1), test, green);
+   // line(vec.at(1,0), vec.at(1,1), vec.at(2,0), vec.at(2,1), test, green);
+   // line(vec.at(2,0), vec.at(2,1), vec.at(0,0), vec.at(0,1), test, white);
+   image.TGAwrite("./TGA/test.tga", 1);
+/*make
    windowsconsole win;
    win.CreateScreenWithBuffer(width,height,1,1);
    win.TGAToBuffer(test);
 */
-   std::cin.ignore();
+   //std::cin.ignore();
 
    return 0;
 }    
