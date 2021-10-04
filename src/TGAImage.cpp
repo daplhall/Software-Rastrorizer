@@ -2,13 +2,14 @@
 #include <iostream>
 #include <vector>
 #include <cstring>
+#include <cstdint>
 #include "TGAImage.h"
 
 
 // TGAimage Class
 TGAimage::TGAimage() : m_screenbuffer(), m_width(0), m_height(0), m_bpp(0){}
 
-TGAimage::TGAimage(int const width, int const height, int const bpp) : m_screenbuffer(width*height*bpp,0), m_width(width), m_height(height),m_bpp(bpp) 
+TGAimage::TGAimage(short const width, short const height, uint8_t const bpp) : m_screenbuffer(width*height*bpp,0), m_width(width), m_height(height),m_bpp(bpp) 
 {
 }    //header.bitsperpixel = colorbits << 3; // translates the bytes to pits. eg. RGB is 3 bytes, and we then translate it to 24 bytes.
 /*
@@ -45,7 +46,8 @@ bool TGAimage::TGAwrite(std::string filename, bool fliped){
         fileout.close();
         return true;
     }
-    fileout.write(reinterpret_cast<char const *> (&header), sizeof(header)); // reinterpert_cast is used to allow me to save the binary contents of the header file!
+    fileout.write(reinterpret_cast<char const *> (&header), sizeof(header)); // reinterping the pointer of header struct as char, as structs and classes are continously allocated like a list
+    // We inerpt as char because it is what write needs, and the struct is uint#_t so the same as a char or a array of chars.
     if (!fileout.good()){
         fileout.close();
         std::cerr << "Cant write the TGA header \n";

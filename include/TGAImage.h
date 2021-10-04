@@ -37,11 +37,11 @@ struct TGAHeader{             // Comments here are for a color mapped images
 #pragma pack(pop)
 
 struct TGAcolor{
-      uint8_t BGRA[4] = {0,0,0,0};
-      // might need a bytessprpixel here, such that i can ensure you dont try to write a RGB color in aGrey scale systemj
+      uint8_t BGRA[4] = {0,0,0,0}; // TGA reads rgb as BGR so backwards
+      // might need a bytessprpixel here, such that i can ensure you dont try to write a RGB color in aGrey scale system
       TGAcolor() = default;
       TGAcolor(uint8_t const Grey) : BGRA{Grey,0,0,0} {}
-      TGAcolor(uint8_t const R, uint8_t const G, uint8_t const B) : BGRA{B,G,R,0} {};
+      TGAcolor(uint8_t const R, uint8_t const G, uint8_t const B) : BGRA{B,G,R,0} {}; 
       TGAcolor(uint8_t const R, uint8_t const G, uint8_t const B, uint8_t const A) : BGRA{B,G,R,A} {};
       TGAcolor(uint8_t const *v, uint8_t const bpp) {
             for (int i=0; i < bpp; i++){
@@ -54,7 +54,7 @@ struct TGAcolor{
 class TGAimage{
       protected:
             std::vector<uint8_t> m_screenbuffer; // uint8_t is just to ensure that the char is 8 bits/1byte long
-            int m_width, m_height;
+            short m_width, m_height;// should this me uint8_t as that is the max for the file?
             short m_bpp; // bytes pr pixel
       public:
             enum Colorformat {// bytes pr format
@@ -63,7 +63,7 @@ class TGAimage{
                   RGBA      = 4
             };
             TGAimage();
-            TGAimage(int const width, int const height, int const bpp);
+            TGAimage(short const width, short const height, uint8_t const bpp);
             void draw(int const x, int const y, TGAcolor const color);
             void clear();
             bool TGAwrite(std::string filename, bool fliped);
