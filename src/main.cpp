@@ -101,8 +101,8 @@ void line(int x0, int y0, int x1, int y1, TGAimage &image, TGAcolor &color) {
 
 
 int main(int argv, char *argc[]){
-   const int width  = 800;
-   const int height = 800;
+   const int width  = 450;
+   const int height = 300;
 
    TGAimage image(width, height, TGAimage::Greyscale);
    TGAcolor red(255,0,0);
@@ -143,7 +143,7 @@ int main(int argv, char *argc[]){
    // line(vec.at(0,0), vec.at(0,1), vec.at(1,0), vec.at(1,1), test, green);
    // line(vec.at(1,0), vec.at(1,1), vec.at(2,0), vec.at(2,1), test, green);
    // line(vec.at(2,0), vec.at(2,1), vec.at(0,0), vec.at(0,1), test, white);
-   image.TGAwrite("./TGA/test.tga", 1);
+   //image.TGAwrite("./TGA/test.tga", 1);
    windowsconsole win;
    win.CreateScreenWithBuffer(width,height,1,1);
    win.TGAToBuffer(image);
