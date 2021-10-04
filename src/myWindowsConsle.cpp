@@ -26,17 +26,16 @@ WindowsConsole::~WindowsConsole(){
     pr color range.
 */
 int WindowsConsole::TGAToBuffer(TGAimage const &image, short const chr){
-    int TGAwidth                         = image.getWidth();
-    int TGAHeight                        = image.getHeight();
-    int TGAbpp                           = image.getBytesPrPixel();
-    std::vector<uint8_t> const TGABuffer = image.getBufferRef(); // Change to const reference?
-    
-    for (int pixel = 0; pixel < TGAwidth*TGAHeight; pixel++){
-        m_Screen[pixel].Char.UnicodeChar = chr;
-        m_Screen[pixel].Attributes       = static_cast<short>(TGABuffer[pixel]);
-    }
-    print();
-    return 0;
+   int TGAwidth                         = image.getWidth();
+   int TGAHeight                        = image.getHeight();
+   int TGABufferLength                  = TGAwidth*TGAHeight;
+   std::vector<uint8_t> const TGABuffer = image.getBufferRef(); // Change to const reference?
+   for (int pixel = 0; pixel < TGABufferLength; pixel++){
+      m_Screen[pixel].Char.UnicodeChar = chr;
+      m_Screen[pixel].Attributes       = static_cast<short>(TGABuffer[(TGABufferLength - 1) - pixel]); // NOTE WE FLIP THE IMAGE HERE:
+   }
+   print();
+   return 0;
 }
 
 int WindowsConsole::Fill(int const xstart, int const ystart,short const chr, short const color){

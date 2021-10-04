@@ -99,50 +99,12 @@ void line(int x0, int y0, int x1, int y1, TGAimage &image, TGAcolor &color) {
    }
 }
 
-void line1(int x0, int y0, int x1, int y1, TGAimage &image, TGAcolor color) {
-    bool steep = false;
-    if (std::abs(x0-x1)<std::abs(y0-y1)) {
-        std::swap(x0, y0);
-        std::swap(x1, y1);
-        steep = true;
-    }
-    if (x0>x1) {
-        std::swap(x0, x1);
-        std::swap(y0, y1);
-    }
-
-    for (int x=x0; x<=x1; x++) {
-        float t = (x-x0)/(float)(x1-x0);
-        int y = y0*(1.-t) + y1*t;
-        if (steep) {
-            image.draw(y, x, color);
-        } else {
-            image.draw(x, y, color);
-        }
-    }
-}
-
-class vector3d
-{
-   private://         0  1  2  3  4  5
-      int data[6] = {20,20,40,50,20,80};
-      int nrows = 3;
-      int ncols = 2;
-   public:
-      int & operator[](int const i) { return  data[i]; }
-      int & at(int const i, int const j) {
-         return data[j + ncols*i];
-         }
-
-};
-
 
 int main(int argv, char *argc[]){
-   const int width  = 800;
-   const int height = 800;
-   vector3d vec;
+   const int width  = 450;
+   const int height = 300;
 
-   TGAimage image(width, height, TGAimage::RGB);
+   TGAimage image(width, height, TGAimage::Greyscale);
    TGAcolor red(255,0,0);
    TGAcolor green(0,255,0);
    TGAcolor white(255,255,255);
@@ -161,7 +123,7 @@ int main(int argv, char *argc[]){
    }
    */
    
-   for (int face = 0; face < 10; face++){
+   for (int face = 0; face < african.nfaces(); face++){
       for (int j = 0; j < 3; j++){
          float vx0 = african.vx(african.fv(face, j));
          float vy0 = african.vy(african.fv(face, j));
@@ -172,22 +134,20 @@ int main(int argv, char *argc[]){
          int x1 = (vx1+1.)*width /2.; 
          int y1 = (vy1+1.)*height/2.; 
          line(x0, y0, x1, y1, image, white); 
-         std::cout << "faces: \t" << african.fv(face, j) << " " << african.fv(face, (j+1)%3) << std::endl;
-         std::cout << "vertex: \t" << vx0 << " "  << vy0 << " " << vx1<< " " <<vy1 << std::endl;
-         std::cout << "pixel: \t" << x0 << " "  << y0 << " " << x1<< " " << y1 << std::endl;
+         //std::cout << "faces: \t" << african.fv(face, j) << " " << african.fv(face, (j+1)%3) << std::endl;
+         //std::cout << "vertex: \t" << vx0 << " "  << vy0 << " " << vx1<< " " <<vy1 << std::endl;
+         //std::cout << "pixel: \t" << x0 << " "  << y0 << " " << x1<< " " << y1 << std::endl;
       }
    }
    
    // line(vec.at(0,0), vec.at(0,1), vec.at(1,0), vec.at(1,1), test, green);
    // line(vec.at(1,0), vec.at(1,1), vec.at(2,0), vec.at(2,1), test, green);
    // line(vec.at(2,0), vec.at(2,1), vec.at(0,0), vec.at(0,1), test, white);
-   image.TGAwrite("./TGA/test.tga", 1);
-/*make
+  // image.TGAwrite("./TGA/test.tga", 1);
    windowsconsole win;
    win.CreateScreenWithBuffer(width,height,1,1);
-   win.TGAToBuffer(test);
-*/
-   //std::cin.ignore();
+   win.TGAToBuffer(image);
+   std::cin.ignore();
 
    return 0;
 }    
