@@ -58,10 +58,10 @@ class TGAimage{
             short m_bpp; // bytes pr pixel
       public:
             enum Colorformat {// bytes pr format
-                  WinConsle = 1,
-                  Greyscale = 1,
-                  RGB       = 3,
-                  RGBA      = 4,
+                  WindowsConsole = 1,
+                  Greyscale      = 1,
+                  RGB            = 3,
+                  RGBA           = 4,
             };
             TGAimage();
             TGAimage(short const width, short const height, uint8_t const bpp);

@@ -111,8 +111,7 @@ Works by splitting the trangle in 2 - Appraently the "standard algorithm" by 1 s
 TODO make it go draw along the x axis isntead of the y, this makes it better for the memory access.
 TODO learn other algorithms
 */
-void filledtriangle(int vx0, int vy0, int vx1, int vy1, int vx2, int vy2, TGAimage &image, TGAcolor &color){
-   
+void filledtriangleX(int vx0, int vy0, int vx1, int vy1, int vx2, int vy2, TGAimage &image, TGAcolor &color){
    if (vx0 > vx1){
       std::swap(vx0, vx1);
       std::swap(vy0, vy1);
@@ -143,8 +142,36 @@ void filledtriangle(int vx0, int vy0, int vx1, int vy1, int vx2, int vy2, TGAima
       line(x, y21, x, y02, image, color);
    }
 }
+void filledtriangle(int vx0, int vy0, int vx1, int vy1, int vx2, int vy2, TGAimage &image, TGAcolor &color){
+   if (vy0 > vy1){
+      std::swap(vx0, vx1);
+      std::swap(vy0, vy1);
+   }
+   if (vy0 > vy2){
+      std::swap(vx0, vx2);
+      std::swap(vy0, vy2);
+   }
+   if (vy1 > vy2){
+      std::swap(vx1,vx2);
+      std::swap(vy1,vy2);
+   }
 
+   for (int y = vy0; y <= vy1; y++){
+      float t01 = (y - vy0)/(vy1 - vy0 + 1e-15);
+      float t02 = (y - vy0)/(vy2 - vy0 + 1e-15);
+      int   x01 = t01*(vx1 - vx0) + vx0;
+      int   x02 = t02*(vx2 - vx0) + vx0;
+      line(x01, y, x02, y ,image, color);
+   }
+   for (int y = vy1 + 1; y <= vy2; y++){
+      float t21 = (y - vy1)/(vy2 - vy1 + 1e-15);
+      float t02 = (y - vy0)/(vy2 - vy0 + 1e-15);
+      int   x21 = t21*(vx2 - vx1) + vx1;
+      int   x02 = t02*(vx2 - vx0) + vx0;
+      line(x21, y, x02, y ,image, color);
+   }
 
+}
 int main(int argv, char *argc[]){
    const int width  = 450;
    const int height = 300;
@@ -169,6 +196,7 @@ int main(int argv, char *argc[]){
       }
    }
    */
+   for (int i = 0; i < 1000; i++){
    for (int face = 0; face < african.nfaces(); face++){
          float vx0 = african.vx(african.fv(face, 0));
          float vy0 = african.vy(african.fv(face, 0));
@@ -187,12 +215,15 @@ int main(int argv, char *argc[]){
          white[0] = rand()%255;
          //white[1] = rand()%255;
          //white[2] = rand()%255;
-         filledtriangle(x0 , y0 ,  \
+         filledtriangleX(x0 , y0 ,\
+                        x1 , y1, \
+                        x2 , y2, image, white);
+         filledtriangle(x0 , y0 ,\
                         x1 , y1, \
                         x2 , y2, image, white);
                         
    }
-
+   }
 /*
    filledtriangle(0, 0, \
                   30, 50, \
@@ -203,11 +234,11 @@ int main(int argv, char *argc[]){
    // line(vec.at(2,0), vec.at(2,1), vec.at(0,0), vec.at(0,1), test, white);
    
    //image.TGAwrite("./TGA/test.tga", 1);
-   
+   /*
    windowsconsole win;
    win.CreateScreenWithBuffer(width,height,1,1);
    win.TGAToBuffer(image);
    std::cin.ignore();
-   
+   */
    return 0;
 }    
