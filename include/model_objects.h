@@ -3,6 +3,9 @@
 
 #include <string>
 #include <vector>
+#include <algorithm>
+
+
 
 // Data container for the vertecies and such.
 class model{

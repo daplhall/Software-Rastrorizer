@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <vector>
 #include <chrono>
+#include <random>
 #include "TGAImage.h"
 #include "myWindowsConsle.h"
 #include "model_objects.h"
@@ -99,30 +100,61 @@ void line(int x0, int y0, int x1, int y1, TGAimage &image, TGAcolor &color) {
    }
 }
 
+float max(float x, float y){
+   if (x > y){
+      return x;
+   }
+   return y;
+}
+/*
+Works by splitting the trangle in 2 - Appraently the "standard algorithm" by 1 source
+TODO make it go draw along the x axis isntead of the y, this makes it better for the memory access.
+TODO learn other algorithms
+*/
+void filledtriangle(int vx0, int vy0, int vx1, int vy1, int vx2, int vy2, TGAimage &image, TGAcolor &color){
+   
+   if (vx0 > vx1){
+      std::swap(vx0, vx1);
+      std::swap(vy0, vy1);
+   }
+   if (vx0 > vx2){
+      std::swap(vx0, vx2);
+      std::swap(vy0, vy2);
+   }
+   if (vx1 > vx2){
+      std::swap(vx1,vx2);
+      std::swap(vy1,vy2);
+   }
+   // vx0 is now always the samllest and vx2 is alwoasy the biggest
+   for (int x = vx0; x <= vx1; x++){
+      int xdiff = x-vx0;
+      float t01 = xdiff/(vx1-vx0 + 1e-15);
+      float t02 = xdiff/(vx2-vx0 + 1e-15);
+      int y01 = t01*(vy1 - vy0) + vy0;
+      int y02 = t02*(vy2 - vy0) + vy0;
+      line(x, y01, x, y02, image, color);
+   }
+   for (int x = vx1 + 1; x <= vx2; x++){
+      //std::cout << x << " " << vx1 << " " << vx2 << std::endl;
+      float t21 = (x-vx1)/(vx2-vx1 + 1e-15);
+      float t02 = (x-vx0)/(vx2-vx0 + 1e-15);
+      int y21 = t21*(vy2 - vy1) + vy1;
+      int y02 = t02*(vy2 - vy0) + vy0;
+      line(x, y21, x, y02, image, color);
+   }
+}
+
 
 int main(int argv, char *argc[]){
    const int width  = 450;
    const int height = 300;
 
-   TGAimage image(width, height, TGAimage::Greyscale);
+   TGAimage image(width, height, TGAimage::WindowsConsole);
    TGAcolor red(255,0,0);
    TGAcolor green(0,255,0);
    TGAcolor white(255,255,255);
-   
-   model african("./models/african_head.obj");
+   model african("./models/african_head.obj");   
    /*
-   int face = african.nfaces() -1;
-   for (int j = 0; j < 3;j++){
-   std::cout << "faces(index from 1)::" << " 1: " << african.fv(face, j) +1<< " 2: " << african.fv(face, (j+1)%3) +1 << std::endl;
-   std::cout << "x: "<< std::endl;
-   std::cout << african.vx(african.fv(face, j)) << "\t";
-   std::cout << african.vx(african.fv(face, (j+1)%3)) << std::endl ;
-   std::cout << "y: "<< std::endl;
-   std::cout << african.vy(african.fv(face, j)) << "\t";
-   std::cout << african.vy(african.fv(face, (j+1)%3)) << std::endl ;
-   }
-   */
-   
    for (int face = 0; face < african.nfaces(); face++){
       for (int j = 0; j < 3; j++){
          float vx0 = african.vx(african.fv(face, j));
@@ -134,20 +166,48 @@ int main(int argv, char *argc[]){
          int x1 = (vx1+1.)*width /2.; 
          int y1 = (vy1+1.)*height/2.; 
          line(x0, y0, x1, y1, image, white); 
-         //std::cout << "faces: \t" << african.fv(face, j) << " " << african.fv(face, (j+1)%3) << std::endl;
-         //std::cout << "vertex: \t" << vx0 << " "  << vy0 << " " << vx1<< " " <<vy1 << std::endl;
-         //std::cout << "pixel: \t" << x0 << " "  << y0 << " " << x1<< " " << y1 << std::endl;
       }
    }
-   
+   */
+   for (int face = 0; face < african.nfaces(); face++){
+         float vx0 = african.vx(african.fv(face, 0));
+         float vy0 = african.vy(african.fv(face, 0));
+         float vx1 = african.vx(african.fv(face, 1)); // this can be built into the fv func
+         float vy1 = african.vy(african.fv(face, 1));
+         float vx2 = african.vx(african.fv(face, 2));
+         float vy2 = african.vy(african.fv(face, 2));
+         
+         int x0 = (vx0+1.)*width /2.; //we add 1 because of the negative values and we are centered around 0 withing -1 and 1
+         int y0 = (vy0+1.)*height/2.; 
+         int x1 = (vx1+1.)*width /2.; 
+         int y1 = (vy1+1.)*height/2.; 
+         int x2 = (vx2+1.)*width /2.; 
+         int y2 = (vy2+1.)*height/2.; 
+      
+         white[0] = rand()%255;
+         //white[1] = rand()%255;
+         //white[2] = rand()%255;
+         filledtriangle(x0 , y0 ,  \
+                        x1 , y1, \
+                        x2 , y2, image, white);
+                        
+   }
+
+/*
+   filledtriangle(0, 0, \
+                  30, 50, \
+                  80, 20, image, white);
+  */ 
    // line(vec.at(0,0), vec.at(0,1), vec.at(1,0), vec.at(1,1), test, green);
    // line(vec.at(1,0), vec.at(1,1), vec.at(2,0), vec.at(2,1), test, green);
    // line(vec.at(2,0), vec.at(2,1), vec.at(0,0), vec.at(0,1), test, white);
+   
    //image.TGAwrite("./TGA/test.tga", 1);
+   
    windowsconsole win;
    win.CreateScreenWithBuffer(width,height,1,1);
    win.TGAToBuffer(image);
    std::cin.ignore();
-
+   
    return 0;
 }    
