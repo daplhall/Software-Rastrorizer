@@ -161,14 +161,23 @@ void filledtriangle(int vx0, int vy0, int vx1, int vy1, int vx2, int vy2, TGAima
       float t02 = (y - vy0)/(vy2 - vy0 + 1e-15);
       int   x01 = t01*(vx1 - vx0) + vx0;
       int   x02 = t02*(vx2 - vx0) + vx0;
-      line(x01, y, x02, y ,image, color);
+      //* Test why line is faster that image.draw and if ti is faster at O3
+      if (x01 > x02) {std::swap(x01,x02);}
+      for (int x = x01; x <= x02; x++){
+         image.draw(x, y, color);
+      }
+      //line(x01, y, x02, y ,image, color);
    }
    for (int y = vy1 + 1; y <= vy2; y++){
       float t21 = (y - vy1)/(vy2 - vy1 + 1e-15);
       float t02 = (y - vy0)/(vy2 - vy0 + 1e-15);
       int   x21 = t21*(vx2 - vx1) + vx1;
       int   x02 = t02*(vx2 - vx0) + vx0;
-      line(x21, y, x02, y ,image, color);
+      if (x21 > x02) {std::swap(x21,x02);}
+      for (int x = x21; x <= x02; x++){
+         image.draw(x, y, color);
+      }
+      //line(x21, y, x02, y ,image, color);
    }
 
 }
@@ -196,8 +205,9 @@ int main(int argv, char *argc[]){
       }
    }
    */
+
    for (int i = 0; i < 1000; i++){
-   for (int face = 0; face < african.nfaces(); face++){
+      for (int face = 0; face < african.nfaces(); face++){
          float vx0 = african.vx(african.fv(face, 0));
          float vy0 = african.vy(african.fv(face, 0));
          float vx1 = african.vx(african.fv(face, 1)); // this can be built into the fv func
@@ -215,20 +225,19 @@ int main(int argv, char *argc[]){
          white[0] = rand()%255;
          //white[1] = rand()%255;
          //white[2] = rand()%255;
-         filledtriangleX(x0 , y0 ,\
-                        x1 , y1, \
-                        x2 , y2, image, white);
          filledtriangle(x0 , y0 ,\
                         x1 , y1, \
                         x2 , y2, image, white);
-                        
-   }
+         filledtriangleX(x0 , y0 ,\
+                        x1 , y1, \
+                        x2 , y2, image, white);
+      }
    }
 /*
    filledtriangle(0, 0, \
                   30, 50, \
                   80, 20, image, white);
-  */ 
+                  */
    // line(vec.at(0,0), vec.at(0,1), vec.at(1,0), vec.at(1,1), test, green);
    // line(vec.at(1,0), vec.at(1,1), vec.at(2,0), vec.at(2,1), test, green);
    // line(vec.at(2,0), vec.at(2,1), vec.at(0,0), vec.at(0,1), test, white);
@@ -240,5 +249,6 @@ int main(int argv, char *argc[]){
    win.TGAToBuffer(image);
    std::cin.ignore();
    */
+
    return 0;
 }    
