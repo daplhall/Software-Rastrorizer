@@ -4,6 +4,7 @@
 #include <fstream>
 #include <cassert>
 #include "model_objects.h"
+#include "myLinAlg.h"
 /*
    NOTE >> seems to ignore white spaces?
 */
@@ -12,6 +13,7 @@ model::model(std::string filename){
    int idstart = 0;
    std::ifstream in;
    std::string   line;
+   vec3f         vec_buffer;// might be bad idea if an element used is not 3D
    in.open (filename, std::ifstream::in);
    if (in.fail()) return;
    while (!in.eof()){ // end of the file (e -end , o -of , f-file
@@ -20,14 +22,15 @@ model::model(std::string filename){
       std::istringstream iss(line.c_str());
       if (!line.compare(0, 2, "v ")){
          iss >> trash; // discard v
-         float v;
-         iss >> v; m_vx.push_back(v);
-         iss >> v; m_vy.push_back(v);
-         iss >> v; m_vz.push_back(v);
+         for (int i = 0; i < 3; i++) iss >> vec_buffer[i];
+         m_v.push_back(vec_buffer);
          // read the vertexes, just do a for loop
       }
       else if(!line.compare(0, 3, "vn  ")){
-         // read vn here
+         iss >> trash;
+         for (int i = 0; i < 3; i++) iss >> vec_buffer[i];
+         m_vt.push_back(vec_buffer);
+
       }
       else if(!line.compare(0, 3, "vt  ")){
          //read vt ie texture
@@ -42,8 +45,7 @@ model::model(std::string filename){
          int f,t,n;
          int triangular = 0;
          while (iss >> f >> trash >> t >> trash >> n){ // why does this work? what is the logic?
-         // read the format of v/vt/vn, and stores the numbers in f,t and n, stores '/' trash
-         // TODO write to model
+         // reads the format of v/vt/vn, and stores the numbers in f,t and n, stores '/' trash
             triangular++;
             m_fv .push_back(f-=idstart);  
             m_fvt.push_back(t-=idstart);  
@@ -58,40 +60,21 @@ model::model(std::string filename){
    }
 }
 // assert?
-float const & model::vx (int const idvertex) const {
-   return m_vx[idvertex];
+vec3f const & model::vert(int const idvertex) const {
+   return m_v[idvertex];
 }
-float const  & model::vy (int const idvertex) const {
-   return m_vy[idvertex];
+vec3f const & model::vt  (int const idvertex) const {
+   return m_vt[idvertex];
 }
-float const & model::vz (int const idvertex) const {
-   return m_vz[idvertex];
+vec3f const & model::vnorm (int const idvertex) const {
+   return m_vn[idvertex];
 }
-float const & model::vtx (int const idvertex) const {
-   return m_vtx[idvertex];
-}
-float const & model::vty (int const idvertex) const {
-   return m_vty[idvertex];
-}
-float const & model::vtz (int const idvertex) const {
-   return m_vtz[idvertex];
-}
-float const & model::vnx (int const idvertex) const {
-   return m_vnx[idvertex];
-}
-float const & model::vny (int const idvertex) const {
-   return m_vny[idvertex];
-}
-float const  & model::vnz (int const idvertex) const {
-   return m_vnz[idvertex];
-}
-
-int const  & model::fv (int const idpolygon, int const idvalue) const{
+int const  & model::fvert(int const idpolygon, int const idvalue) const{
    return m_fv[idvalue + m_ndim *idpolygon];
 }
-int const  & model::fvt(int const idpolygon, int const idvalue) const{
+int const  & model::fvt  (int const idpolygon, int const idvalue) const{
    return m_fvt[idvalue + m_ndim *idpolygon];
 }
-int const  & model::fvn(int const idpolygon, int const idvalue) const{
+int const  & model::fvn  (int const idpolygon, int const idvalue) const{
    return m_fvn[idvalue + m_ndim * idpolygon];
 }
