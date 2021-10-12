@@ -29,11 +29,13 @@ model::model(std::string filename){
       else if(!line.compare(0, 3, "vn  ")){
          iss >> trash;
          for (int i = 0; i < 3; i++) iss >> vec_buffer[i];
-         m_vt.push_back(vec_buffer);
+         m_vn.push_back(vec_buffer);
 
       }
       else if(!line.compare(0, 3, "vt  ")){
-         //read vt ie texture
+         iss >> trash;
+         for (int i = 0; i < 3; i++) iss >> vec_buffer[i];
+         m_vt.push_back(vec_buffer);
       }
       else if(!line.compare(0, 2, "s ")){
          iss >> trash;

@@ -122,6 +122,7 @@ void filledtriangle(int vx0, int vy0, int vx1, int vy1, int vx2, int vy2, TGAima
       //* Test why line is faster that image.draw and if ti is faster at O3
       if (x01 > x02) {std::swap(x01,x02);}
       for (int x = x01; x <= x02; x++){
+         if 
          image.draw(x, y, color);
       }
       //line(x01, y, x02, y ,image, color);
@@ -168,18 +169,51 @@ void filledtriangle(vec2i v0, vec2i v1, vec2i v2, TGAimage &image, TGAcolor &col
       //line(x21, y, x02, y ,image, color);
    }
 }
+/*
+   Y buffer rastorizer for a 2D to 1D
+   https://github.com/ssloy/tinyrenderer/wiki/Lesson-3:-Hidden-faces-removal-(z-buffer)
+   it draws in layers, the first line is always drawn and then the second is only drawn if it is over the first and so on.
+*/
+void raztorize2D(vec2i v0, vec2i v1, TGAimage &image, TGAcolor &color, int *ybuffer){
+   if (v0.x > v1.x) std::swap(v0, v1);
+   for (int x = v0.x; x < v1.x; x++){
+      float t = (x-v0.x)/(float)(v1.x - v0.x);
+      int y = v0.y + t*(v1.y - v0.y);
+      if (y > ybuffer[x]){
+         ybuffer[x] = y;
+         image.draw(x, 0, color);
+      }  
+   }  
+}
+
 
 
 int main(int argv, char *argc[]){
    const int width  = 800;//450;
-   const int height = 800;//300;
+   const int height = 1;//300;
    vec3f light_dir(0,0, 1);
+   int ybuffer[width*height] = {std::numeric_limits<int>::min()};
 
    TGAimage image(width, height, TGAimage::RGB);
    TGAcolor red  (255, 0  , 0  );
    TGAcolor green(0  , 255, 0  );
+   TGAcolor blue (0  , 0, 255  );
    TGAcolor white(255, 255, 255);
-   model african("./models/african_head.obj");   
+   //model african("./models/african_head.obj");   
+   raztorize2D(vec2i(20, 34),   vec2i(744, 400), image, red,   ybuffer);
+   raztorize2D(vec2i(120, 434), vec2i(444, 400), image, green, ybuffer);
+   raztorize2D(vec2i(330, 463), vec2i(594, 200), image, blue,  ybuffer);
+
+   image.TGAwrite("./TGA/test.tga", 1);
+   /*
+   windowsconsole win;
+   win.CreateScreenWithBuffer(width,height,1,1);
+   win.TGAToBuffer(image);
+   std::cin.ignore();
+   */
+   return 0;
+} 
+/*
    for (int face = 0; face < african.nfaces(); face++){
       vec2i Imgcoord[3];
       vec3f fcoord  [3];
@@ -199,12 +233,4 @@ int main(int argv, char *argc[]){
          filledtriangle(Imgcoord[0], Imgcoord[1], Imgcoord[2],  image, WhiteLight);
       }
    }
-   image.TGAwrite("./TGA/test.tga", 1);
-   /*
-   windowsconsole win;
-   win.CreateScreenWithBuffer(width,height,1,1);
-   win.TGAToBuffer(image);
-   std::cin.ignore();
-   */
-   return 0;
-} 
+*/

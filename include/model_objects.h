@@ -9,7 +9,8 @@
 // Data container for the vertecies and such.
 class model{
    private:
-   //NOTE test perforamce of vec3f vs 3 different arryas 
+   //NOTE test perforamce of vec3f vs 3 different arryas
+      //the best solution is a hybrid 
       std::vector<vec3f> m_v;   // vertexes; XYZXYZ.. format should be fine in terms of memory catching for each vertex basicly doesn't care for eachother, although you can test the performan
       std::vector<vec3f> m_vt;  // texture values X
       std::vector<vec3f> m_vn;  // normal values  X
