@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <vector>
 #include <string>
+#include "myLinAlg.h"
 // This is just a header of the file, note the data
 #pragma pack(push,1)// Needed to stop padding for this file, it needs exaclty 18 bytes.
 struct TGAHeader{             // Comments here are for a color mapped images
@@ -76,6 +77,5 @@ class TGAimage{
             std::vector<uint8_t> const & getBufferRef() const { return m_screenbuffer; };
             
 };
-
 
 #endif

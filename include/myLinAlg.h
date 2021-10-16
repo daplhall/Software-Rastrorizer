@@ -44,6 +44,7 @@ template<typename T = float> struct vec2d {
 
 typedef vec2d<int>   vec2i;
 typedef vec3d<int>   vec3i;
+typedef vec3d<int>   vec3i;
 typedef vec3d<float> vec3f;
 
 template<typename T = vec3f> 
@@ -54,7 +55,14 @@ T cross(T v0, T v1){
    product.z = v0.x*v1.y - v0.y*v1.x;
    return product;
 }
+/*
+   R - Standard number type
+   T - vector format 
+*/
+template<typename T = vec3f, typename R = float>
+R AreaCrossPlane(T v0, T v1){
+   return v0.x*v1.y - v0.y*v1.x;
+}
 float dot (vec3f v0, vec3f v1);
-
 
 #endif //  H_MYLINALG_H

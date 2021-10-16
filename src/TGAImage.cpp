@@ -4,6 +4,8 @@
 #include <cstring>
 #include <cstdint>
 #include "TGAImage.h"
+#include "myLinAlg.h"
+
 
 
 // TGAimage Class
