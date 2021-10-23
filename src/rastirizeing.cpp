@@ -76,21 +76,18 @@ void line(vec2i v0, vec2i v1, TGAimage &image, TGAcolor &color) {
       }
    }
 }
-inline float Cross2D(vec3f &va, vec3f &vb){
-   return va.x*vb.y - va.y*vb.x;
-}
+
 
 void filledtriangle(vec3f v0, vec3f v1, vec3f v2, float *zbuffer, TGAimage &image, TGAcolor &color){
-   // xmin ymin xmax ymax
    // maybe add heigh widht and 0 as some more limits
-   int bbox[4] = {std::min( v2.x, std::min(v0.x, v1.x)),  // 0
-                  std::min( v2.y, std::min(v0.y, v1.y)),  // 1
-                  std::max( v2.x, std::max(v0.x, v1.x)),  // 2
-                  std::max( v2.y, std::max(v0.y, v1.y))}; // 3
-   vec3f p;
+   int bbox[4] = {std::min( v2.x, std::min(v0.x, v1.x)),  // 0: xmin
+                  std::min( v2.y, std::min(v0.y, v1.y)),  // 1: ymin
+                  std::max( v2.x, std::max(v0.x, v1.x)),  // 2: xman
+                  std::max( v2.y, std::max(v0.y, v1.y))}; // 3: ymax
    vec3f v10 = v1 - v0; 
    vec3f v20 = v2 - v0;
    float A = Cross2D(v20, v10);
+   vec3f p;
    for ( p.y = bbox[1]; p.y < bbox[3]; p.y++){
       for ( p.x = bbox[0]; p.x < bbox[2]; p.x++){
          vec3f q = p - v0;
@@ -102,10 +99,6 @@ void filledtriangle(vec3f v0, vec3f v1, vec3f v2, float *zbuffer, TGAimage &imag
             zbuffer[zid] = z;
             image.draw(p.x, p.y, color); 
          }
-         // calulate areas
-         // if coef < 0 contine
-         // draw
-   
       }
    }
 }

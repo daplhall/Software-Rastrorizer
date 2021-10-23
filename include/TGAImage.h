@@ -70,7 +70,7 @@ class TGAimage{
             void clear();
             bool TGAwrite(std::string filename, bool fliped);
             // Getters - Setters
-            int getWidth()                              const { return m_width;  }
+            inline int getWidth()                              const { return m_width;  }
             int getHeight()                             const { return m_height; }
             int getBytesPrPixel()                       const { return m_bpp;    }
             std::vector<uint8_t> getBuffer()            const { return m_screenbuffer; };
