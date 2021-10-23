@@ -50,10 +50,10 @@ int main(int argv, char *argc[]){
       vec3f v21 = fcoord[2] - fcoord[1];
       vec3f Xdot = cross(v10, v21);// assume that the obj file is always postivly orientated.
       Xdot.normalize(1);
-      float intensity = dot(light_dir, Xdot);
+      float intensity = 1;//dot(light_dir, Xdot);
       if (intensity > 0){ // bigger than zero as the norms i calulate point into the object, so they need to be parallel in the same direction to be light.
          TGAcolor WhiteLight(intensity*255, intensity*255, intensity*255);
-         filledtriangle(Imgcoord[0], Imgcoord[1], Imgcoord[2],zBuffer, image, WhiteLight);
+         filledtriangle(Imgcoord[0], Imgcoord[1], Imgcoord[2],zBuffer, image, Crand);
       }
    }
    if (argv > 1) {image.TGAwrite("./TGA/test.tga", 1);}

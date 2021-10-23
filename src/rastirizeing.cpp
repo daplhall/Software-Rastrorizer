@@ -76,162 +76,36 @@ void line(vec2i v0, vec2i v1, TGAimage &image, TGAcolor &color) {
       }
    }
 }
+inline float Cross2D(vec3f &va, vec3f &vb){
+   return va.x*vb.y - va.y*vb.x;
+}
 
-/*
-Works by splitting the trangle in 2 - Appraently the "standard algorithm" by 1 source
-TODO make it go draw along the x axis isntead of the y, this makes it better for the memory access.
-TODO learn other algorithms
-*/
-void filledtriangle(int vx0, int vy0, int vx1, int vy1, int vx2, int vy2, TGAimage &image, TGAcolor &color){
-   if (vy0 > vy1){
-      std::swap(vx0, vx1);
-      std::swap(vy0, vy1);
-   }
-   if (vy0 > vy2){
-      std::swap(vx0, vx2);
-      std::swap(vy0, vy2);
-   }
-   if (vy1 > vy2){
-      std::swap(vx1,vx2);
-      std::swap(vy1,vy2);
-   }
-
-   for (int y = vy0; y <= vy1; y++){
-      float t01 = (y - vy0)/(vy1 - vy0 + 1e-15);
-      float t02 = (y - vy0)/(vy2 - vy0 + 1e-15);
-      int   x01 = t01*(vx1 - vx0) + vx0;
-      int   x02 = t02*(vx2 - vx0) + vx0;
-      //* Test why line is faster that image.draw and if ti is faster at O3
-      if (x01 > x02) {std::swap(x01,x02);}
-      for (int x = x01; x <= x02; x++){
-         image.draw(x, y, color);
-      }
-      //line(x01, y, x02, y ,image, color);
-   }
-   for (int y = vy1 + 1; y <= vy2; y++){
-      float t21 = (y - vy1)/(vy2 - vy1 + 1e-15);
-      float t02 = (y - vy0)/(vy2 - vy0 + 1e-15);
-      int   x21 = t21*(vx2 - vx1) + vx1;
-      int   x02 = t02*(vx2 - vx0) + vx0;
-      if (x21 > x02) {std::swap(x21,x02);}
-      for (int x = x21; x <= x02; x++){
-         image.draw(x, y, color);
-      }
-      //line(x21, y, x02, y ,image, color);
-   }
-}
-void filledtriangle(vec2i v0, vec2i v1, vec2i v2, TGAimage &image, TGAcolor &color){
-   if (v0.y > v1.y) std::swap(v0, v1);
-   if (v0.y > v2.y) std::swap(v0, v2);
-   if (v1.y > v2.y) std::swap(v1, v2);
-   // Upper triangle
-   for (int y = v0.y; y <= v1.y; y++){
-      float t01 = (y - v0.y)/(v1.y - v0.y + 1e-15);
-      float t02 = (y - v0.y)/(v2.y - v0.y + 1e-15);
-      int   x01 = t01*(v1.x - v0.x) + v0.x;
-      int   x02 = t02*(v2.x - v0.x) + v0.x;
-      //* Test why line is faster that image.draw and if ti is faster at O3
-      if (x01 > x02) std::swap(x01,x02);
-      for (int x = x01; x <= x02; x++){
-         image.draw(x, y, color);
-      }
-      //line(x01, y, x02, y ,image, color);
-   }
-   // Bottom Trianlge
-   for (int y = v1.y + 1; y <= v2.y; y++){
-      float t21 = (y - v1.y)/(v2.y - v1.y + 1e-15);
-      float t02 = (y - v0.y)/(v2.y - v0.y + 1e-15);
-      int   x21 = t21*(v2.x - v1.x) + v1.x;
-      int   x02 = t02*(v2.x - v0.x) + v0.x;
-      if (x21 > x02) {std::swap(x21,x02);}
-      for (int x = x21; x <= x02; x++){
-         image.draw(x, y, color);
-      }
-      //line(x21, y, x02, y ,image, color);
-   }
-}
-void filledtriangle(vec3f v0, vec3f v1, vec3f v2, TGAimage &image, TGAcolor &color){
-   if (v0.y > v1.y) std::swap(v0, v1);
-   if (v0.y > v2.y) std::swap(v0, v2);
-   if (v1.y > v2.y) std::swap(v1, v2);
-   // Upper triangle
-   for (int y = v0.y; y <= v1.y; y++){
-      float t01 = (y - v0.y)/(v1.y - v0.y + 1e-15);
-      float t02 = (y - v0.y)/(v2.y - v0.y + 1e-15);
-      int   x01 = t01*(v1.x - v0.x) + v0.x;
-      int   x02 = t02*(v2.x - v0.x) + v0.x;
-      //* Test why line is faster that image.draw and if ti is faster at O3
-      if (x01 > x02) std::swap(x01,x02);
-      for (int x = x01; x <= x02; x++){
-         image.draw(x, y, color);
-      }
-      //line(x01, y, x02, y ,image, color);
-   }
-   // Bottom Trianlge
-   for (int y = v1.y + 1; y <= v2.y; y++){
-      float t21 = (y - v1.y)/(v2.y - v1.y + 1e-15);
-      float t02 = (y - v0.y)/(v2.y - v0.y + 1e-15);
-      int   x21 = t21*(v2.x - v1.x) + v1.x;
-      int   x02 = t02*(v2.x - v0.x) + v0.x;
-      if (x21 > x02) {std::swap(x21,x02);}
-      for (int x = x21; x <= x02; x++){
-         image.draw(x, y, color);
-      }
-      //line(x21, y, x02, y ,image, color);
-   }
-}
-/*
-
-   return : float
-   - the interpolate z value of P.
-*/
-float ZpolateBary(vec3f v0, vec3f v1, vec3f v2, vec3f p){
-   float A  = 0.5 * std::abs(AreaCrossPlane<vec3f, float>(v1-v0, v2-v0));
-   float A0 = 0.5 * std::abs(AreaCrossPlane<vec3f, float>(v1-p , v2-p ));
-   float A1 = 0.5 * std::abs(AreaCrossPlane<vec3f, float>(v0-p , v2-p ));
-   float A2 = 0.5 * std::abs(AreaCrossPlane<vec3f, float>(v1-p , v0-p ));
-   return (A0 * v0.z + A1*v1.z + A2*v2.z)/A;
-}
-/*
-   Needs screen coordiantes, ie (+1 *width, +1) * height
-*/
 void filledtriangle(vec3f v0, vec3f v1, vec3f v2, float *zbuffer, TGAimage &image, TGAcolor &color){
-   // vecterzes should be converted to integers ie coords in the image
-   if (v0.y > v1.y) std::swap(v0, v1);
-   if (v0.y > v2.y) std::swap(v0, v2);
-   if (v1.y > v2.y) std::swap(v1, v2);
-   // I can likely make this loop a inline function, and then just call it twice
-   float t0, t1, z;
-   int   x0, x1, idz;
+   // xmin ymin xmax ymax
+   // maybe add heigh widht and 0 as some more limits
+   int bbox[4] = {std::min( v2.x, std::min(v0.x, v1.x)),  // 0
+                  std::min( v2.y, std::min(v0.y, v1.y)),  // 1
+                  std::max( v2.x, std::max(v0.x, v1.x)),  // 2
+                  std::max( v2.y, std::max(v0.y, v1.y))}; // 3
    vec3f p;
-   for (p.y = v0.y; p.y <= v1.y; p.y++){
-      t0 = (p.y - v0.y)/(float)(v1.y - v0.y + 1e-15);
-      t1 = (p.y - v0.y)/(float)(v2.y - v0.y + 1e-15);
-      x0 = t0*(v1.x - v0.x) + v0.x;
-      x1 = t1*(v2.x - v0.x) + v0.x;
-      if (x0 > x1) std::swap(x0, x1);
-      for (p.x = x0; p.x <= x1; p.x++){
-         idz = p.x + p.y*image.getWidth();
-         z = ZpolateBary(v0, v1, v2, p);
-         if (z > zbuffer[idz]){
-            zbuffer[idz] = z;
+   vec3f v10 = v1 - v0; 
+   vec3f v20 = v2 - v0;
+   float A = Cross2D(v20, v10);
+   for ( p.y = bbox[1]; p.y < bbox[3]; p.y++){
+      for ( p.x = bbox[0]; p.x < bbox[2]; p.x++){
+         vec3f q = p - v0;
+         float u = Cross2D(v20, q)/A; // v1 area
+         float v = Cross2D(q, v10)/A; // v2 area
+         float z = (1-u-v)*v0.z + u*v1.z + v*v2.z;
+         int zid = p.x+p.y*image.getWidth();
+         if (u >= 0 && v >= 0 && 1 >= u + v  && z > zbuffer[zid]){
+            zbuffer[zid] = z;
             image.draw(p.x, p.y, color); 
          }
-      }
-   }
-   for (p.y = v1.y + 1; p.y <= v2.y; p.y++){
-      t0 = (p.y - v1.y)/(float)(v2.y - v1.y + 1e-15);
-      t1 = (p.y - v0.y)/(float)(v2.y - v0.y + 1e-15);
-      x0 = t0*(v2.x - v1.x) + v1.x;
-      x1 = t1*(v2.x - v0.x) + v0.x;
-      if (x0 > x1) {std::swap(x0,x1);}
-      for (p.x = x0; p.x <= x1; p.x++){
-         idz = p.x + p.y*image.getWidth();
-         z = ZpolateBary(v0, v1, v2, p);
-         if (z > zbuffer[idz]){
-            zbuffer[idz] = z;
-            image.draw(p.x, p.y, color); 
-         }
+         // calulate areas
+         // if coef < 0 contine
+         // draw
+   
       }
    }
 }
