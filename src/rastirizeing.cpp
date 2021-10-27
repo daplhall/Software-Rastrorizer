@@ -7,7 +7,7 @@
 void line(int x0, int y0, int x1, int y1, TGAimage &image, TGAcolor &color) { 
    bool transpose = false;
    int dx = std::abs(x1 - x0); // will always be positive after swap
-   int dy = std::abs(y1 - y0);
+   int dy = std::abs(y1 - y0);         
    if (dx < dy){ // transposed
       transpose = true;
       std::swap(dx, dy);
@@ -86,7 +86,7 @@ void filledtriangle(vec3f v0, vec3f v1, vec3f v2, float *zbuffer, TGAimage &imag
                   std::max( v2.y, std::max(v0.y, v1.y))}; // 3: ymax
    vec3f v10 = v1 - v0; 
    vec3f v20 = v2 - v0;
-   float A = Cross2D(v20, v10);
+   float A = Cross2D(v20, v10); // NOTE maybe flip, so we always point inwards. maybe add culling in here.
    vec3f p;
    for ( p.y = bbox[1]; p.y < bbox[3]; p.y++){
       for ( p.x = bbox[0]; p.x < bbox[2]; p.x++){
@@ -97,7 +97,7 @@ void filledtriangle(vec3f v0, vec3f v1, vec3f v2, float *zbuffer, TGAimage &imag
          int zid = p.x+p.y*image.getWidth();
          if (u >= 0 && v >= 0 && 1 >= u + v  && z > zbuffer[zid]){
             zbuffer[zid] = z;
-            image.draw(p.x, p.y, color); 
+            image.draw(p.x, p.y, color);
          }
       }
    }

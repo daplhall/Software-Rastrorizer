@@ -55,9 +55,7 @@ T cross(T v0, T v1){
    product.z = v0.x*v1.y - v0.y*v1.x;
    return product;
 }
-float Cross2D(vec3f &va, vec3f &vb){
-   return va.x*vb.y - va.y*vb.x;
-}
 float dot (vec3f v0, vec3f v1);
+float Cross2D(vec3f &va, vec3f &vb);
 
 #endif //  H_MYLINALG_H

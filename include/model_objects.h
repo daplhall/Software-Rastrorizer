@@ -26,11 +26,14 @@ class model{
 
       model(std::string filename);
       // rename to vertt
-      vec3f  const & vert (int const idvertex) const;
-      vec3f  const & vt   (int const idvertex) const;
-      vec3f  const & vnorm(int const idvertex) const;
-      int    const & fvert(int const idpolygon, int const idvalue) const;
-      int    const & fvt  (int const idpolygon, int const idvalue) const;
-      int    const & fvn  (int const idpolygon, int const idvalue) const; 
+      inline vec3f const & vert(int const idvertex) const   {return m_v[idvertex];}
+      inline vec3f const & vt  (int const idvertex) const   {return m_vt[idvertex];}
+      inline vec3f const & vnorm (int const idvertex) const {return m_vn[idvertex];}
+      inline int const  & fvert(int const idpolygon, int const idvalue) const {return m_fv[idvalue + m_ndim *idpolygon];}
+      inline int const  & fvt  (int const idpolygon, int const idvalue) const {return m_fvt[idvalue + m_ndim *idpolygon];}
+      inline int const  & fvn  (int const idpolygon, int const idvalue) const {return m_fvn[idvalue + m_ndim * idpolygon];}
+
+      // TODO: add a combination of fvert and vert, so i just get the 
+      //       wanted triangle coord, ie mask vert(fvert(i,j));
 };
 #endif //H_MODELOBJECT_H

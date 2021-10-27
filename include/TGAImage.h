@@ -1,4 +1,5 @@
-// http://www.paulbourke.net/dataformats/tga/
+// http://www.paulbourke.net/dataformats/tga/ // filled with alot of wrong info
+// https://www.dca.fee.unicamp.br/~martino/disciplinas/ea978/tgaffs.pdf
 #ifndef H_TGAIMG_H
 #define H_TGAIMG_H
 // char = 1 byte = 8 bits
@@ -23,7 +24,8 @@ struct TGAHeader{             // Comments here are for a color mapped images
       uint8_t  ImgDescriptor{}; // Image Descriptor Byte.                                    |
                               // Bits 3-0 - number of attribute bits associated with each  
                               //            pixel.                                         
-                              // Bit 4    - reserved.  Must be set to 0.                   
+                              // Bit 4    - screen origin bit.
+                              //            1 = flip it along the y xaix                      
                               // Bit 5    - screen origin bit.                             
                               //            0 = Origin in lower left-hand corner.          
                               //            1 = Origin in upper left-hand corner.          
@@ -33,7 +35,6 @@ struct TGAHeader{             // Comments here are for a color mapped images
                               //            01 = two-way (even/odd) interleaving.          
                               //            10 = four way interleaving.                    
                               //            11 = reserved.                                 
-                              // This entire byte should be set to 0.  Don't ask me.       
 };
 #pragma pack(pop)
 
@@ -68,14 +69,24 @@ class TGAimage{
             TGAimage(short const width, short const height, uint8_t const bpp);
             void draw(int const x, int const y, TGAcolor const color);
             void clear();
-            bool TGAwrite(std::string filename, bool fliped);
+            bool TGAwrite(std::string filename, bool verticalflip, bool horizontalflip);
+            bool TGAread (std::string filename);
+            bool HorizontalFlip();
+            bool VerticalFlip();
+            bool UnravleRle();
             // Getters - Setters
-            inline int getWidth()                              const { return m_width;  }
-            inline int getHeight()                             const { return m_height; }
-            inline int getBytesPrPixel()                       const { return m_bpp;    }
-            std::vector<uint8_t> getBuffer()            const { return m_screenbuffer; };
-            std::vector<uint8_t> const & getBufferRef() const { return m_screenbuffer; };
-            
+            inline int getWidth()                       const { return m_width;  }
+            inline int getHeight()                      const { return m_height; }
+            inline int getBytesPrPixel()                const { return m_bpp;    }
+            inline std::vector<uint8_t> getBuffer()            const { return m_screenbuffer; };
+            inline std::vector<uint8_t> const & getBufferRef() const { return m_screenbuffer; };
+            inline TGAcolor GetPixelColor(int const x, int const y){
+                  TGAcolor c;
+                  int screenidx = m_bpp*(x + m_width*y);
+                  for (int i = 0; i < m_bpp; i++){
+                        c[i] = m_screenbuffer[screenidx + i];
+                  }
+                  return c;
+            }
 };
-
 #endif

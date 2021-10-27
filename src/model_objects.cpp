@@ -61,22 +61,3 @@ model::model(std::string filename){
       }      
    }
 }
-// assert?
-vec3f const & model::vert(int const idvertex) const {
-   return m_v[idvertex];
-}
-vec3f const & model::vt  (int const idvertex) const {
-   return m_vt[idvertex];
-}
-vec3f const & model::vnorm (int const idvertex) const {
-   return m_vn[idvertex];
-}
-int const  & model::fvert(int const idpolygon, int const idvalue) const{
-   return m_fv[idvalue + m_ndim *idpolygon];
-}
-int const  & model::fvt  (int const idpolygon, int const idvalue) const{
-   return m_fvt[idvalue + m_ndim *idpolygon];
-}
-int const  & model::fvn  (int const idpolygon, int const idvalue) const{
-   return m_fvn[idvalue + m_ndim * idpolygon];
-}

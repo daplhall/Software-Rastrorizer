@@ -32,7 +32,8 @@ int WindowsConsole::TGAToBuffer(TGAimage const &image, short const chr){
    std::vector<uint8_t> const TGABuffer = image.getBufferRef(); // Change to const reference?
    for (int pixel = 0; pixel < TGABufferLength; pixel++){
       m_Screen[pixel].Char.UnicodeChar = chr;
-      m_Screen[pixel].Attributes       = static_cast<short>(TGABuffer[(TGABufferLength - 1) - pixel]); // NOTE WE FLIP THE IMAGE HERE:
+      m_Screen[pixel].Attributes       = static_cast<short>(TGABuffer[pixel]); // NOTE WE FLIP THE IMAGE HERE:
+      //m_Screen[pixel].Attributes       = static_cast<short>(TGABuffer[(TGABufferLength - 1) - pixel]); // NOTE WE FLIP THE IMAGE HERE:
    }
    print();
    return 0;
@@ -112,13 +113,15 @@ int WindowsConsole::CreateScreen(short width, short height, short fontwidth, sho
         return 1;
     }
  // Font Controll
-    CONSOLE_FONT_INFOEX cfi;
+    CONSOLE_FONT_INFOEX cfi;    
     cfi.cbSize = sizeof(cfi);
     cfi.nFont  = 0;
     cfi.dwFontSize.X = fontwidth;
     cfi.dwFontSize.Y = fontheight;
     cfi.FontFamily   = FF_DONTCARE;
     cfi.FontWeight   = FW_NORMAL;
+    //wcscpy(cfi.FaceName, L"Raster Fonts");
+    wcscpy(cfi.FaceName, L"Consolas");
     if (!SetCurrentConsoleFontEx(m_hConsole, false, &cfi)){
         std::cerr << "Error -> WindowsConsole - Setting Font size";
         return 1;
@@ -171,6 +174,9 @@ int WindowsConsole::CreateScreenWithBuffer(short width, short height, short font
     cfi.dwFontSize.Y = fontheight;
     cfi.FontFamily   = FF_DONTCARE;
     cfi.FontWeight   = FW_NORMAL;
+    //wcscpy(cfi.FaceName, L"Raster Fonts");
+    wcscpy(cfi.FaceName, L"Consolas");
+
     if (!SetCurrentConsoleFontEx(m_hConsole, false, &cfi)){
         std::cerr << "Error -> WindowsConsole - Setting Font size";
         return 1;

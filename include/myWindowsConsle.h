@@ -1,6 +1,6 @@
 #ifndef H_MYWINDOWSCONSLE_H
 #define H_MYWINDOWSCONSLE_H
-#include <windows.h>
+#include <windows.h> 
 #include <TGAImage.h>
 
 namespace MyWindowsColor{
