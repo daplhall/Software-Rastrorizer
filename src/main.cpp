@@ -26,8 +26,8 @@ vec3f WorldToScreen(vec3f A, TGAimage const &image){
 }
 
 int main(int argv, char *argc[]){
-   const int width  = 800;
-   const int height = 800;
+   const int width  = 1;
+   const int height = 1;
    int Cformat = (argv > 1) ? TGAimage::RGB : TGAimage::WindowsConsole;
    
    float *zbuffer = new float[width*height];

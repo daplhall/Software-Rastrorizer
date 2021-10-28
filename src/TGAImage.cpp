@@ -52,10 +52,47 @@ bool TGAimage::VerticalFlip(){
     delete[] buffer;
     return 0;
 }
-
-bool TGAimage::UnravleRle(){
-
-
+/*
+http://tfc.duke.free.fr/coding/tga_specs.pdf
+*/
+bool TGAimage::DecodeRLE(std::ifstream &reader){
+    uint8_t packetInfo; // number of pixels in the end
+    int imagePixelcount = m_width*m_height;
+    int pixelcount = 0;
+    TGAcolor PixelBuffer;
+    int currentByte = pixelcount*m_bpp;
+    do {
+        currentByte = pixelcount*m_bpp;
+        packetInfo = reader.get(); // reads the next char
+        if (!reader.good()){
+            std::cerr << "Error -> Cant load RLC packet info" << std::endl;
+            return 0;
+        }
+        if (128 > packetInfo){ // Raw package, read n, 127 is included as it is 0b01111111 in binary, we need to react if the 8th bit is 1
+            packetInfo++;
+            reader.read((char *)&m_screenbuffer[currentByte], m_bpp*packetInfo);
+            if (!reader.good()){
+                std::cerr << "Error -> Decode RAW package" << std::endl;
+                return 0;
+            }
+            pixelcount += packetInfo;
+        }       
+        else { //'
+            packetInfo -= 127; // removes the 8th bit accounted for the +1 for the correct range.
+            reader.read((char *)PixelBuffer.BGRA, m_bpp);
+            if (!reader.good()){
+                std::cerr << "Error -> Decode RLC package" << std::endl;
+                return 0;
+            }
+            for ( int repeat = 0; repeat < packetInfo; repeat++){
+                for (int pixelID = 0; pixelID < m_bpp; pixelID++){
+                    m_screenbuffer[currentByte++] = PixelBuffer[pixelID]; // might index with pixelcount here wrongly.
+                }
+                pixelcount++;
+           } 
+        }
+    }while (imagePixelcount > pixelcount);
+    return 1;
 }
 
 bool TGAimage::TGAwrite(std::string filename, bool verticalflip, bool horizontalflip){
@@ -79,43 +116,43 @@ bool TGAimage::TGAwrite(std::string filename, bool verticalflip, bool horizontal
     if (!fileout.is_open()){
         std::cerr << "Unable to openfile " << filename << "\n";
         fileout.close();
-        return true;
+        return 0;
     }
     fileout.write(reinterpret_cast<char const *> (&header), sizeof(header)); // reinterping the pointer of header struct as char, as structs and classes are continously allocated like a list
     // We inerpt as char because it is what write needs, and the struct is uint#_t so the same as a char or a array of chars.
     if (!fileout.good()){
         fileout.close();
         std::cerr << "Cant write the TGA header \n";
-        return true;
+        return 0;
     }
     // Now save data; TODO write data
     fileout.write(reinterpret_cast<char const *> (&m_screenbuffer[0]), m_width*m_height*m_bpp);
     if (!fileout.good()){
         fileout.close();
         std::cerr << "Cant Write image to TGA file\n";
-        return true;
+        return 0;
     }
     // save footer 
     fileout.write(reinterpret_cast<char const *> (&Extension_offset), sizeof(Extension_offset));
     if (!fileout.good()){
         fileout.close();
         std::cerr << "Cant write TGA Extention offset \n";
-        return true;
+        return 0;
     }
     fileout.write(reinterpret_cast<char const *> (&Developer_offset), sizeof(Developer_offset));
     if (!fileout.good()){
         fileout.close();
         std::cerr << "Cant write TGA Developer offset\n";
-        return true;
+        return 0;
     }
     fileout.write(reinterpret_cast<char const *> (&signature), sizeof(signature));
     if (!fileout.good()){
         fileout.close();
         std::cerr << "Cant write TGA Signature\n";
-        return true;
+        return 0;
     }
     fileout.close();
-    return false;
+    return 1;
 }
 
 bool TGAimage::TGAread(std::string filename){
@@ -125,12 +162,13 @@ bool TGAimage::TGAread(std::string filename){
     if (!reader.is_open()){
         reader.close();
         std::cerr << "Error: -> TGA reader cant open file" << std::endl;
+        return 0;
     }
     reader.read((char *)&header, sizeof(header));
     if (!reader.good()){
         reader.close();
         std::cerr << "Error: -> TGA reader cant read file" << std::endl;
-        return 1;
+        return 0;
     }
     m_width  = header.width;
     m_height = header.height;
@@ -138,7 +176,7 @@ bool TGAimage::TGAread(std::string filename){
     if (0 >= m_width  || 0 >= m_height || ( m_bpp != Greyscale && m_bpp != RGB && m_bpp != RGBA)){
         reader.close();
         std::cerr << "Error: -> TGA reader cant read file due to unsupported colorscale or no data" << std::endl;
-        return 1;
+        return 0;
     }
     m_screenbuffer.reserve(m_width*m_height*m_bpp);
     if (header.DataTypeCode == 3 || header.DataTypeCode == 2){
@@ -146,13 +184,20 @@ bool TGAimage::TGAread(std::string filename){
         if (!reader.good()){
             reader.close();
             std::cerr << "Error: -> TGA reader problem with loading data" << std::endl;
-            return 1;
+            return 0;
         }    
+    }
+    else if (header.DataTypeCode == 10 || header.DataTypeCode == 11){
+        if (!DecodeRLE(reader)){
+            reader.close();
+            std::cerr << "Error -> error decoding TGA file" << std::endl;
+            return 0;
+        }
     }
     else{
         reader.close();
         std::cerr << "File compression format is unsupported" << std::endl;
-        return 1;
+        return 0;
     }
     if (header.ImgDescriptor & 0x20){ // 0x20 is hex for 1 on the 5th but
         VerticalFlip();
@@ -162,5 +207,5 @@ bool TGAimage::TGAread(std::string filename){
     }
     // i may need flips, as the data might be flipped.
     reader.close();
-    return 0;
+    return 1;
 }

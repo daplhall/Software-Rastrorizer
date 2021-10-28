@@ -73,7 +73,7 @@ class TGAimage{
             bool TGAread (std::string filename);
             bool HorizontalFlip();
             bool VerticalFlip();
-            bool UnravleRle();
+            bool DecodeRLE(std::ifstream &reader);
             // Getters - Setters
             inline int getWidth()                       const { return m_width;  }
             inline int getHeight()                      const { return m_height; }
