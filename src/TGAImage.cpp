@@ -28,8 +28,8 @@ bool TGAimage::HorizontalFlip(){
     TGAcolor cright;
     for (int y = 0; y < m_height; y++){
         for (int x = 0; x < m_width/2; x++){
-            int x_ = m_width - x;
-            cleft  = GetPixelColor(x,y);
+            int x_ = (m_width - 1) - x;
+            cleft  = GetPixelColor(x , y);
             cright = GetPixelColor(x_, y);
             draw(x,  y, cright);
             draw(x_, y, cleft);
@@ -53,14 +53,24 @@ bool TGAimage::VerticalFlip(){
     return 0;
 }
 /*
-http://tfc.duke.free.fr/coding/tga_specs.pdf
+    Info about the decodeing: http://tfc.duke.free.fr/coding/tga_specs.pdf
+    Basiclly a TGA RLE file is encodied pr pixel, so repeating pixels are gatheres.
+    
+    There er essentially 2 packes to consider, a RAW package and RLE package.
+    The RAW package is just raw data, from pixels who couldn't be encoded as they are all different.
+    The 8 bit (char) field in front of the data in this package is always 0 on the 8th bit (128 int), so the rest 7 bits indicate the length of this raw
+    block of data.
+
+    The RLC package is data that has been encoded. This is marked with a 1 on the 8th bit of the start field.
+    This means that we need to subtract 0b10000000 or 128 from this field to how many times we need to repreat the pixel.
+
 */
 bool TGAimage::DecodeRLE(std::ifstream &reader){
+    int currentByte;
     uint8_t packetInfo; // number of pixels in the end
     int imagePixelcount = m_width*m_height;
     int pixelcount = 0;
     TGAcolor PixelBuffer;
-    int currentByte = pixelcount*m_bpp;
     do {
         currentByte = pixelcount*m_bpp;
         packetInfo = reader.get(); // reads the next char
@@ -68,16 +78,30 @@ bool TGAimage::DecodeRLE(std::ifstream &reader){
             std::cerr << "Error -> Cant load RLC packet info" << std::endl;
             return 0;
         }
+        // Raw Package
         if (128 > packetInfo){ // Raw package, read n, 127 is included as it is 0b01111111 in binary, we need to react if the 8th bit is 1
             packetInfo++;
+            /*
             reader.read((char *)&m_screenbuffer[currentByte], m_bpp*packetInfo);
             if (!reader.good()){
                 std::cerr << "Error -> Decode RAW package" << std::endl;
                 return 0;
             }
+            */
+            for (int i = 0; i < packetInfo; i++){
+                reader.read((char*) PixelBuffer.BGRA, m_bpp);
+                if (!reader.good()){
+                    std::cout << "ERROR RAW PACkacge"<< std::endl;
+                    return 0;
+                }
+                for (int PixelID = 0; PixelID < m_bpp; PixelID++){
+                    m_screenbuffer[currentByte++] = PixelBuffer[PixelID];
+                }
+            }
             pixelcount += packetInfo;
         }       
-        else { //'
+        // RLE Package
+        else { // RLE package
             packetInfo -= 127; // removes the 8th bit accounted for the +1 for the correct range.
             reader.read((char *)PixelBuffer.BGRA, m_bpp);
             if (!reader.good()){
@@ -102,7 +126,7 @@ bool TGAimage::TGAwrite(std::string filename, bool verticalflip, bool horizontal
     header.height         = m_height;
     header.BitsPrPixel    = m_bpp << 3; // translates the bytes to pits. eg. RGB is 3 bytes, and we then translate it to 24 bytes. eqivilant to mutlipying with 8.
     header.DataTypeCode   = (m_bpp == Greyscale) ? 3 : 2; // TODO add compression ie more '?', values come from table in  http://www.paulbourke.net/dataformats/tga/
-    header.ImgDescriptor  = verticalflip   ? 0x00 : 0x20; // 0x20 corresponds exactly to a 1 on the 5th bith and 0 elsewhere
+    header.ImgDescriptor  = verticalflip   ? 0x20 : 0x00; // 0x20 corresponds exactly to a 1 on the 5th bith and 0 elsewhere
     header.ImgDescriptor += horizontalflip ? 0x00 : 0x10; // 0x10 corresponds exactly to a 1 on the 4th bith and 0 elsewhere
     // leave the rest as 0
     // FOOTERj
@@ -173,6 +197,15 @@ bool TGAimage::TGAread(std::string filename){
     m_width  = header.width;
     m_height = header.height;
     m_bpp    = header.BitsPrPixel >> 3;
+    if (header.IDlength > 0){ // if the ID field is defined, we then skip forward to the colormap.
+        reader.seekg(header.IDlength, std::ios_base::cur);
+        if (!reader.good()){
+            reader.close();
+            std::cerr << "Error -> skipping id-data" << std::endl;
+            return 0;
+        }
+    }
+    // TODO colormap
     if (0 >= m_width  || 0 >= m_height || ( m_bpp != Greyscale && m_bpp != RGB && m_bpp != RGBA)){
         reader.close();
         std::cerr << "Error: -> TGA reader cant read file due to unsupported colorscale or no data" << std::endl;
@@ -199,10 +232,10 @@ bool TGAimage::TGAread(std::string filename){
         std::cerr << "File compression format is unsupported" << std::endl;
         return 0;
     }
-    if (header.ImgDescriptor & 0x20){ // 0x20 is hex for 1 on the 5th but
+    if (header.ImgDescriptor & 0x20){ // 1 for top to bottom 0x20 is hex for 1 on the 5th but
         VerticalFlip();
     }
-    if (header.ImgDescriptor & 0x10){ // 0x10 is hex for 1 on the 4th bit
+    if ((header.ImgDescriptor & 0x10)){ // 1 for left to right 0x10 is hex for 1 on the 4th bit
         HorizontalFlip();
     }
     // i may need flips, as the data might be flipped.

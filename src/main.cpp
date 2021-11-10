@@ -26,8 +26,8 @@ vec3f WorldToScreen(vec3f A, TGAimage const &image){
 }
 
 int main(int argv, char *argc[]){
-   const int width  = 1;
-   const int height = 1;
+   const int width  = 300;
+   const int height = 300;
    int Cformat = (argv > 1) ? TGAimage::RGB : TGAimage::WindowsConsole;
    
    float *zbuffer = new float[width*height];
@@ -39,7 +39,7 @@ int main(int argv, char *argc[]){
    TGAcolor white(255, 255, 255);
    model african("./models/african_head.obj");
 
-   image.TGAread("./models/african_head_diffuse.tga");
+   image.TGAread("./models/cbw8.tga");
    // there is a problem when widht and height are off center
    /*
    for (int face = 0; face < african.nfaces(); face++){
@@ -61,13 +61,13 @@ int main(int argv, char *argc[]){
       }
    }
    
-   image.VerticalFlip();
+   image.VerticalFlip()
 */
 ////////
-   if (argv > 1) {image.TGAwrite("./TGA/test.tga", 0, 0);}
+   if (argv > 1) {image.TGAwrite("./TGA/test.tga", 01, 0);}
    else{
       windowsconsole win;
-      win.CreateScreenWithBuffer(width,height,2,2);
+      win.CreateScreenWithBuffer(image.getWidth(),image.getHeight(),2,2);
       win.TGAToBuffer(image);
       std::cin.ignore();
    }
